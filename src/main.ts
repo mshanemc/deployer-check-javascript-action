@@ -10,6 +10,7 @@ const retryOptions = {
 }
 
 async function run(): Promise<void> {
+  console.log(`ref is ${github.context.ref}`)
   let baseUrl =
     core.getInput('deployer-url').length > 0
       ? core.getInput('deployer-url')
