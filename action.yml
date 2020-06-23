@@ -1,10 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Deployer Validation'
+description: 'Verifies that repo is deployable using public deployers'
+author: '@mshanemc (Shane McLaughlin)'
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  deployerUrl:
+    description: 'base url for the deployer (not including path like /launch)'
+    default: 'https://hosted-scratch.herokuapp.com'
 runs:
   using: 'node12'
   main: 'dist/index.js'

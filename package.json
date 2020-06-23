@@ -1,5 +1,5 @@
 {
-  "name": "typescript-action",
+  "name": "@mshanemc/deployer-check-javascript-action",
   "version": "0.0.0",
   "private": true,
   "description": "TypeScript template action",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "https://github.com/mshanemc/deployer-check-javascript-action"
   },
   "keywords": [
     "actions",
@@ -25,7 +25,8 @@
   "author": "YourNameOrOrganization",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0"
+    "@actions/core": "^1.2.0",
+    "@actions/github": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
