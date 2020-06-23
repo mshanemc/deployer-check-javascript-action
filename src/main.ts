@@ -9,15 +9,20 @@ const retryOptions = {
   maxAttempts: 6 * 15
 }
 
+const defaultBranchName = 'master'
+
 async function run(): Promise<void> {
   let baseUrl =
     core.getInput('deployer-url').length > 0
       ? core.getInput('deployer-url')
       : 'https://hosted-scratch-dev.herokuapp.com'
   try {
-    // todo: handle branches with ref
     console.log(`ref is ${github.context.ref}`)
-    const launchUri = `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
+    const branch = github.context.ref.replace('refs/heads/', '')
+    const launchUri =
+      branch === defaultBranchName
+        ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
+        : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`
     let resultsUri: string
     let deployId: string = ''
     console.log(launchUri)
