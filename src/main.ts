@@ -71,8 +71,6 @@ async function run(): Promise<void> {
       })
       console.log(deleteResult)
     }
-
-    core.setOutput('ok', 'ok')
   } catch (error) {
     core.setFailed(error.message)
   }
