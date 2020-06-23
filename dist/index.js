@@ -6284,6 +6284,7 @@ function run() {
             : 'https://hosted-scratch-dev.herokuapp.com';
         try {
             // todo: handle branches with ref
+            console.log(`ref is ${github.context.ref}`);
             const launchUri = `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`;
             let resultsUri;
             let deployId = '';
@@ -6336,7 +6337,6 @@ function run() {
                 });
                 console.log(deleteResult);
             }
-            core.setOutput('ok', 'ok');
         }
         catch (error) {
             core.setFailed(error.message);
