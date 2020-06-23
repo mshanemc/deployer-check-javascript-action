@@ -17,7 +17,7 @@ async function run(): Promise<void> {
       ? core.getInput('deployer-url')
       : 'https://hosted-scratch-dev.herokuapp.com'
   try {
-    console.log(`ref is ${github.context.ref}`)
+    // console.log(`ref is ${github.context.ref}`)
     const branch = github.context.ref.replace('refs/heads/', '')
     const launchUri =
       branch === defaultBranchName
@@ -25,7 +25,7 @@ async function run(): Promise<void> {
         : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`
     let resultsUri: string
     let deployId: string = ''
-    console.log(launchUri)
+    console.log(`requesting a deploy using ${launchUri}`)
 
     try {
       await request({
