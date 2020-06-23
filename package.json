@@ -22,15 +22,18 @@
     "node",
     "setup"
   ],
-  "author": "YourNameOrOrganization",
+  "author": "@mshanemc (Shane McLaughlin)",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.0",
-    "@actions/github": "^3.0.0"
+    "@actions/github": "^3.0.0",
+    "@lifeomic/attempt": "^3.0.0",
+    "request-promise-native": "^1.0.8"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
     "@types/node": "^12.7.12",
+    "@types/request-promise-native": "^1.0.17",
     "@typescript-eslint/parser": "^2.8.0",
     "@zeit/ncc": "^0.20.5",
     "eslint": "^5.16.0",

@@ -5,6 +5,9 @@ inputs:
   deployer-url:
     description: 'base url for the deployer (not including path like /launch)'
     default: 'https://hosted-scratch.herokuapp.com'
+outputs:
+  cds:
+    description: 'client data structure from the deployer'
 runs:
   using: 'node12'
   main: 'dist/index.js'
