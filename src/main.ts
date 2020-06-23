@@ -10,13 +10,13 @@ const retryOptions = {
 }
 
 async function run(): Promise<void> {
-  console.log(`ref is ${github.context.ref}`)
   let baseUrl =
     core.getInput('deployer-url').length > 0
       ? core.getInput('deployer-url')
       : 'https://hosted-scratch-dev.herokuapp.com'
   try {
     // todo: handle branches with ref
+    console.log(`ref is ${github.context.ref}`)
     const launchUri = `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
     let resultsUri: string
     let deployId: string = ''
