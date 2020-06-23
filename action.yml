@@ -2,7 +2,7 @@ name: 'Deployer Validation'
 description: 'Verifies that repo is deployable using public deployers'
 author: '@mshanemc (Shane McLaughlin)'
 inputs:
-  deployerUrl:
+  deployer-url:
     description: 'base url for the deployer (not including path like /launch)'
     default: 'https://hosted-scratch.herokuapp.com'
 runs:
