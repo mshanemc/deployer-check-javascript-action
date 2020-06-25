@@ -73,7 +73,8 @@ async function run(): Promise<void> {
         uri: `${baseUrl}/delete`,
         body: JSON.stringify({
           deployId
-        })
+        }),
+        followAllRedirects: true
       })
       console.log(deleteResult)
     }
