@@ -6331,8 +6331,9 @@ function run() {
             }
             core.setOutput('cds', finalResult);
             if (deployId) {
-                const deleteResult = yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
-                    yield request_promise_native_1.default({
+                yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
+                    console.log('attempting delete');
+                    const deleteResult = yield request_promise_native_1.default({
                         method: 'POST',
                         uri: `${baseUrl}/delete`,
                         body: JSON.stringify({
