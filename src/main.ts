@@ -65,6 +65,9 @@ async function run(): Promise<void> {
     // check for errors (setFailed if there are any)
     if (finalResult.errors.length > 0) {
       core.setFailed('errors on deploy')
+      finalResult.errors.forEach((deployError: any) =>
+        console.log(JSON.stringify(deployError))
+      )
     }
     core.setOutput('cds', finalResult)
     if (deployId) {
