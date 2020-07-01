@@ -68,15 +68,17 @@ async function run(): Promise<void> {
     }
     core.setOutput('cds', finalResult)
     if (deployId) {
-      const deleteResult = await request({
-        method: 'POST',
-        uri: `${baseUrl}/delete`,
-        body: JSON.stringify({
-          deployId
-        }),
-        followAllRedirects: true
-      })
-      console.log(deleteResult)
+      const deleteResult = await retry(async () => {
+        await request({
+          method: 'POST',
+          uri: `${baseUrl}/delete`,
+          body: JSON.stringify({
+            deployId
+          }),
+          followAllRedirects: true
+        })
+        console.log(deleteResult)
+      }, retryOptions)
     }
   } catch (error) {
     core.setFailed(error.message)
