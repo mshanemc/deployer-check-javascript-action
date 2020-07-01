@@ -56,6 +56,7 @@ async function run(): Promise<void> {
       })
       // retry until complete = true
       if (!result.complete) {
+        console.log(result)
         console.log('waiting')
         throw new Error()
       }
