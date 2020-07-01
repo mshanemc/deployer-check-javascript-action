@@ -6284,14 +6284,14 @@ function run() {
             ? core.getInput('deployer-url')
             : 'https://hosted-scratch-dev.herokuapp.com';
         try {
-            console.log(`ref is ${github.context.ref}`);
+            // console.log(`ref is ${github.context.ref}`)
             const branch = github.context.ref.replace('refs/heads/', '');
             const launchUri = branch === defaultBranchName
                 ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
                 : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`;
             let resultsUri;
             let deployId = '';
-            console.log(launchUri);
+            console.log(`requesting a deploy using ${launchUri}`);
             try {
                 yield request_promise_native_1.default({
                     method: 'GET',
@@ -6331,14 +6331,17 @@ function run() {
             }
             core.setOutput('cds', finalResult);
             if (deployId) {
-                const deleteResult = yield request_promise_native_1.default({
-                    method: 'POST',
-                    uri: `${baseUrl}/delete`,
-                    body: JSON.stringify({
-                        deployId
-                    })
-                });
-                console.log(deleteResult);
+                const deleteResult = yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
+                    yield request_promise_native_1.default({
+                        method: 'POST',
+                        uri: `${baseUrl}/delete`,
+                        body: JSON.stringify({
+                            deployId
+                        }),
+                        followAllRedirects: true
+                    });
+                    console.log(deleteResult);
+                }), retryOptions);
             }
         }
         catch (error) {
