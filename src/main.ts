@@ -6,7 +6,7 @@ import {retry} from '@lifeomic/attempt'
 const retryOptions = {
   delay: 10000,
   initialDelay: 10000,
-  maxAttempts: 6 * 15
+  maxAttempts: 6 * 30
 }
 
 const defaultBranchName = 'master'
