@@ -6328,6 +6328,7 @@ function run() {
             // check for errors (setFailed if there are any)
             if (finalResult.errors.length > 0) {
                 core.setFailed('errors on deploy');
+                finalResult.errors.forEach((deployError) => console.log(JSON.stringify(deployError)));
             }
             core.setOutput('cds', finalResult);
             if (deployId) {
