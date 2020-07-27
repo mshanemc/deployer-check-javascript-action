@@ -37,10 +37,9 @@ async function run(): Promise<void> {
     } catch (error) {
       if (error.statusCode === 302) {
         // parse the response for the deployId
-        deployId = error.response.caseless.dict.location.replace(
-          '/deploying/deployer/',
-          ''
-        )
+        deployId = error.response.caseless.dict.location
+          .replace('/deploying/deployer/', '')
+          .replace('/#deploying/deployer/', '')
         resultsUri = `${baseUrl}/results/${deployId}`
       } else {
         throw new Error('bad response from /launch')
