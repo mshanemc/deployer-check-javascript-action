@@ -6341,14 +6341,17 @@ function run() {
             const launchUri = branch === defaultBranchName
                 ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
                 : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`;
-            const deployId = yield launchToDeployId_1.launch(launchUri);
             console.log(`requesting a deploy using ${launchUri}`);
+            const deployId = yield launchToDeployId_1.launch(launchUri);
+            console.log(`deploying with id: ${deployId}`);
             // build the results api url /results:deployId
             const finalResult = yield pollforResults_1.getResults(deployId);
             // check for errors (setFailed if there are any)
             if (finalResult.errors.length > 0) {
                 core.setFailed('errors on deploy');
-                finalResult.errors.forEach((deployError) => console.log(JSON.stringify(deployError)));
+                for (const deployError of finalResult.errors) {
+                    console.log(JSON.stringify(deployError));
+                }
             }
             core.setOutput('cds', finalResult);
             if (deployId) {
@@ -25277,6 +25280,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launch = void 0;
+/* eslint-disable no-console */
 const request_promise_native_1 = __importDefault(__webpack_require__(117));
 const launch = (launchUri) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -25288,7 +25292,6 @@ const launch = (launchUri) => __awaiter(void 0, void 0, void 0, function* () {
         });
         console.log('received non-error response', response);
         throw new Error('redirect problem');
-        return '';
     }
     catch (error) {
         if (error.statusCode === 302) {
