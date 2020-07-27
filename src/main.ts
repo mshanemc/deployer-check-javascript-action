@@ -13,7 +13,6 @@ async function run(): Promise<void> {
       ? core.getInput('deployer-url')
       : 'https://hosted-scratch-dev.herokuapp.com'
   try {
-    // console.log(`ref is ${github.context.ref}`)
     const branch = github.context.ref.replace('refs/heads/', '')
     const launchUri =
       branch === defaultBranchName
@@ -24,10 +23,10 @@ async function run(): Promise<void> {
     console.log(`deploying with id: ${deployId}`)
 
     // build the results api url /results:deployId
-    const finalResult = await getResults(deployId)
+    const finalResult = await getResults(deployId, baseUrl)
     // check for errors (setFailed if there are any)
     if (finalResult.errors.length > 0) {
-      core.setFailed('errors on deploy')
+      core.setFailed('errors on deploy 7/27+')
       for (const deployError of finalResult.errors) {
         console.log(JSON.stringify(deployError))
       }
