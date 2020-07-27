@@ -19,17 +19,18 @@ async function run(): Promise<void> {
       branch === defaultBranchName
         ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
         : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`
-    const deployId = await launch(launchUri)
     console.log(`requesting a deploy using ${launchUri}`)
+    const deployId = await launch(launchUri)
+    console.log(`deploying with id: ${deployId}`)
 
     // build the results api url /results:deployId
     const finalResult = await getResults(deployId)
     // check for errors (setFailed if there are any)
     if (finalResult.errors.length > 0) {
       core.setFailed('errors on deploy')
-      finalResult.errors.forEach((deployError: any) =>
+      for (const deployError of finalResult.errors) {
         console.log(JSON.stringify(deployError))
-      )
+      }
     }
     core.setOutput('cds', finalResult)
     if (deployId) {

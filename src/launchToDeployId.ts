@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import request from 'request-promise-native'
 
 const launch = async (launchUri: string): Promise<string> => {
@@ -10,7 +11,6 @@ const launch = async (launchUri: string): Promise<string> => {
     })
     console.log('received non-error response', response)
     throw new Error('redirect problem')
-    return ''
   } catch (error) {
     if (error.statusCode === 302) {
       console.log(`redirected to ${error.response.caseless.dict.location}`)
