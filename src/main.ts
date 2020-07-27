@@ -36,6 +36,7 @@ async function run(): Promise<void> {
       })
     } catch (error) {
       if (error.statusCode === 302) {
+        console.log(`redirected to ${error.response.caseless.dict.location}`)
         // parse the response for the deployId
         deployId = error.response.caseless.dict.location
           .replace('/deploying/deployer/', '')
