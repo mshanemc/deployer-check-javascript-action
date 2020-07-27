@@ -20,4 +20,4 @@ jobs:
     - uses: actions/checkout@v1
     - uses: ./
       with: 
-        deployer-url: https://hosted-scrath-dev.herokuapp.com
+        deployer-url: https://hosted-scratch-dev.herokuapp.com
