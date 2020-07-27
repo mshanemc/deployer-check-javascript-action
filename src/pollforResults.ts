@@ -16,7 +16,7 @@ const getResults = async (
       json: true
     })
     // retry until complete = true
-    if (!result.complete) {
+    if (result.complete === false) {
       console.log(result)
       console.log('waiting')
       throw new Error()
