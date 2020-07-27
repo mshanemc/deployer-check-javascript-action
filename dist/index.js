@@ -3162,11 +3162,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getResults = void 0;
+/* eslint-disable no-console */
 const request_promise_native_1 = __importDefault(__webpack_require__(117));
 const attempt_1 = __webpack_require__(503);
 const constants_1 = __webpack_require__(32);
 const getResults = (deployId, deployerBaseUrl = constants_1.baseUrl) => __awaiter(void 0, void 0, void 0, function* () {
     const resultsUri = `${deployerBaseUrl}/results/${deployId}`;
+    console.log(`requesting results from ${resultsUri}`);
     const finalResult = yield attempt_1.retry(() => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield request_promise_native_1.default({
             uri: resultsUri,
@@ -3174,7 +3176,7 @@ const getResults = (deployId, deployerBaseUrl = constants_1.baseUrl) => __awaite
             json: true
         });
         // retry until complete = true
-        if (!result.complete) {
+        if (result.complete === false) {
             console.log(result);
             console.log('waiting');
             throw new Error();
@@ -6336,7 +6338,6 @@ function run() {
             ? core.getInput('deployer-url')
             : 'https://hosted-scratch-dev.herokuapp.com';
         try {
-            // console.log(`ref is ${github.context.ref}`)
             const branch = github.context.ref.replace('refs/heads/', '');
             const launchUri = branch === defaultBranchName
                 ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
@@ -6345,10 +6346,10 @@ function run() {
             const deployId = yield launchToDeployId_1.launch(launchUri);
             console.log(`deploying with id: ${deployId}`);
             // build the results api url /results:deployId
-            const finalResult = yield pollforResults_1.getResults(deployId);
+            const finalResult = yield pollforResults_1.getResults(deployId, baseUrl);
             // check for errors (setFailed if there are any)
             if (finalResult.errors.length > 0) {
-                core.setFailed('errors on deploy');
+                core.setFailed('errors on deploy 7/27+');
                 for (const deployError of finalResult.errors) {
                     console.log(JSON.stringify(deployError));
                 }
