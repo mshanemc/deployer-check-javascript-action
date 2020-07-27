@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');module.exports =
+module.exports =
 /******/ (function(modules, runtime) { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	// The module cache
@@ -44546,4 +44546,3 @@ module.exports = Writer;
 /******/ 	
 /******/ }
 );
-//# sourceMappingURL=index.js.map
