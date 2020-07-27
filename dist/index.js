@@ -1,4 +1,4 @@
-module.exports =
+require('./sourcemap-register.js');module.exports =
 /******/ (function(modules, runtime) { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	// The module cache
@@ -538,7 +538,22 @@ module.exports = function generate_comment(it, $keyword, $ruleType) {
 /* 29 */,
 /* 30 */,
 /* 31 */,
-/* 32 */,
+/* 32 */
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.retryOptions = exports.baseUrl = void 0;
+exports.baseUrl = 'https://hosted-scratch-dev.herokuapp.com';
+exports.retryOptions = {
+    delay: 10000,
+    initialDelay: 10000,
+    maxAttempts: 6 * 30
+};
+
+
+/***/ }),
 /* 33 */
 /***/ (function(module) {
 
@@ -3128,7 +3143,50 @@ function runJob(iterator, key, item, callback)
 
 /***/ }),
 /* 158 */,
-/* 159 */,
+/* 159 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getResults = void 0;
+const request_promise_native_1 = __importDefault(__webpack_require__(117));
+const attempt_1 = __webpack_require__(503);
+const constants_1 = __webpack_require__(32);
+const getResults = (deployId, deployerBaseUrl = constants_1.baseUrl) => __awaiter(void 0, void 0, void 0, function* () {
+    const resultsUri = `${deployerBaseUrl}/results/${deployId}`;
+    const finalResult = yield attempt_1.retry(() => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield request_promise_native_1.default({
+            uri: resultsUri,
+            method: 'GET',
+            json: true
+        });
+        // retry until complete = true
+        if (!result.complete) {
+            console.log(result);
+            console.log('waiting');
+            throw new Error();
+        }
+        return result;
+    }), constants_1.retryOptions);
+    return finalResult;
+});
+exports.getResults = getResults;
+
+
+/***/ }),
 /* 160 */,
 /* 161 */,
 /* 162 */
@@ -6264,23 +6322,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-console */
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
-const request_promise_native_1 = __importDefault(__webpack_require__(117));
-const attempt_1 = __webpack_require__(503);
-const retryOptions = {
-    delay: 10000,
-    initialDelay: 10000,
-    maxAttempts: 6 * 30
-};
+const launchToDeployId_1 = __webpack_require__(584);
+const delete_1 = __webpack_require__(316);
+const pollforResults_1 = __webpack_require__(159);
 const defaultBranchName = 'master';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        let baseUrl = core.getInput('deployer-url').length > 0
+        const baseUrl = core.getInput('deployer-url').length > 0
             ? core.getInput('deployer-url')
             : 'https://hosted-scratch-dev.herokuapp.com';
         try {
@@ -6289,43 +6341,10 @@ function run() {
             const launchUri = branch === defaultBranchName
                 ? `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}&nopool=true`
                 : `${baseUrl}/launch?template=https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/tree/${branch}&nopool=true`;
-            let resultsUri;
-            let deployId = '';
+            const deployId = yield launchToDeployId_1.launch(launchUri);
             console.log(`requesting a deploy using ${launchUri}`);
-            try {
-                yield request_promise_native_1.default({
-                    method: 'GET',
-                    uri: launchUri,
-                    followRedirect: false,
-                    resolveWithFullResponse: false
-                });
-            }
-            catch (error) {
-                if (error.statusCode === 302) {
-                    // parse the response for the deployId
-                    deployId = error.response.caseless.dict.location.replace('/deploying/deployer/', '');
-                    resultsUri = `${baseUrl}/results/${deployId}`;
-                }
-                else {
-                    throw new Error('bad response from /launch');
-                }
-            }
             // build the results api url /results:deployId
-            const finalResult = yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
-                const result = yield request_promise_native_1.default({
-                    uri: resultsUri,
-                    method: 'GET',
-                    json: true
-                });
-                // retry until complete = true
-                if (!result.complete) {
-                    console.log(result);
-                    console.log('waiting');
-                    throw new Error();
-                }
-                return result;
-            }), retryOptions);
-            console.log(finalResult);
+            const finalResult = yield pollforResults_1.getResults(deployId);
             // check for errors (setFailed if there are any)
             if (finalResult.errors.length > 0) {
                 core.setFailed('errors on deploy');
@@ -6333,18 +6352,7 @@ function run() {
             }
             core.setOutput('cds', finalResult);
             if (deployId) {
-                yield attempt_1.retry(() => __awaiter(this, void 0, void 0, function* () {
-                    console.log('attempting delete');
-                    const deleteResult = yield request_promise_native_1.default({
-                        method: 'POST',
-                        uri: `${baseUrl}/delete`,
-                        body: JSON.stringify({
-                            deployId
-                        }),
-                        followAllRedirects: true
-                    });
-                    console.log(deleteResult);
-                }), retryOptions);
+                yield delete_1.deleteOrg(deployId, baseUrl);
             }
         }
         catch (error) {
@@ -6670,7 +6678,25 @@ module.exports = function generate_dependencies(it, $keyword, $ruleType) {
 /***/ }),
 /* 234 */,
 /* 235 */,
-/* 236 */,
+/* 236 */
+/***/ (function(module) {
+
+// Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
+
+
+module.exports = {
+
+  newInvalidAsn1Error: function (msg) {
+    var e = new Error();
+    e.name = 'InvalidAsn1Error';
+    e.message = msg || '';
+    return e;
+  }
+
+};
+
+
+/***/ }),
 /* 237 */,
 /* 238 */,
 /* 239 */,
@@ -8426,7 +8452,7 @@ exports.debug = debug // for test
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
-var errors = __webpack_require__(584);
+var errors = __webpack_require__(236);
 var types = __webpack_require__(362);
 
 var Reader = __webpack_require__(733);
@@ -12249,7 +12275,48 @@ module.exports = function generate_custom(it, $keyword, $ruleType) {
 
 /***/ }),
 /* 315 */,
-/* 316 */,
+/* 316 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteOrg = void 0;
+/* eslint-disable no-console */
+const request_promise_native_1 = __importDefault(__webpack_require__(117));
+const attempt_1 = __webpack_require__(503);
+const constants_1 = __webpack_require__(32);
+const deleteOrg = (deployId, deployerBaseUrl = constants_1.baseUrl) => __awaiter(void 0, void 0, void 0, function* () {
+    yield attempt_1.retry(() => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('attempting delete');
+        const deleteResult = yield request_promise_native_1.default({
+            method: 'POST',
+            uri: `${deployerBaseUrl}/delete`,
+            body: JSON.stringify({
+                deployId
+            }),
+            followAllRedirects: true
+        });
+        console.log(deleteResult);
+    }), constants_1.retryOptions);
+    return true;
+});
+exports.deleteOrg = deleteOrg;
+
+
+/***/ }),
 /* 317 */,
 /* 318 */,
 /* 319 */
@@ -25192,21 +25259,51 @@ module.exports = function (requireCache, callback, callbackForModulesToKeep, mod
 
 /***/ }),
 /* 584 */
-/***/ (function(module) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
-// Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
+"use strict";
 
-
-module.exports = {
-
-  newInvalidAsn1Error: function (msg) {
-    var e = new Error();
-    e.name = 'InvalidAsn1Error';
-    e.message = msg || '';
-    return e;
-  }
-
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.launch = void 0;
+const request_promise_native_1 = __importDefault(__webpack_require__(117));
+const launch = (launchUri) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield request_promise_native_1.default({
+            method: 'GET',
+            uri: launchUri,
+            followRedirect: false,
+            resolveWithFullResponse: false
+        });
+        console.log('received non-error response', response);
+        throw new Error('redirect problem');
+        return '';
+    }
+    catch (error) {
+        if (error.statusCode === 302) {
+            console.log(`redirected to ${error.response.caseless.dict.location}`);
+            // parse the response for the deployId
+            const splits = error.response.caseless.dict.location.split('/');
+            return splits[splits.length - 1];
+        }
+        else {
+            console.log(error);
+            throw new Error('bad response from /launch');
+        }
+    }
+});
+exports.launch = launch;
 
 
 /***/ }),
@@ -30899,7 +30996,7 @@ var assert = __webpack_require__(357);
 var Buffer = __webpack_require__(215).Buffer;
 
 var ASN1 = __webpack_require__(362);
-var errors = __webpack_require__(584);
+var errors = __webpack_require__(236);
 
 
 // --- Globals
@@ -44111,7 +44208,7 @@ module.exports = function (options) {
 var assert = __webpack_require__(357);
 var Buffer = __webpack_require__(215).Buffer;
 var ASN1 = __webpack_require__(362);
-var errors = __webpack_require__(584);
+var errors = __webpack_require__(236);
 
 
 // --- Globals
@@ -44449,3 +44546,4 @@ module.exports = Writer;
 /******/ 	
 /******/ }
 );
+//# sourceMappingURL=index.js.map
