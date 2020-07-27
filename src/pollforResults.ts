@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import request from 'request-promise-native'
 import {retry} from '@lifeomic/attempt'
 
@@ -8,6 +9,7 @@ const getResults = async (
   deployerBaseUrl = baseUrl
 ): Promise<any> => {
   const resultsUri = `${deployerBaseUrl}/results/${deployId}`
+  console.log(`requesting results from ${resultsUri}`)
 
   const finalResult = await retry(async () => {
     const result = await request({
